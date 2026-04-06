@@ -1,0 +1,122 @@
+Lead Processing & Data Integrity Automation
+
+### **Project Overview**
+
+**Key Features:**
+* **Multi-Source Intake:** Handles both Webhooks and Lead Form submissions.
+* **Data Validation:** Automatically identifies and separates records with missing or null fields.
+* **Deduplication:** Uses internal logic to prevent duplicate CRM entries.
+* **Intelligent Routing:** Dynamically routes leads to "SMB" or "Enterprise" teams based on custom rules.
+* **Real-time Notifications:** Sends Slack alerts for both successful lead routing and data quality issues.   
+
+**Goal:** To build an autonomous pipeline that captures leads from multiple sources, validates data quality in real-time, and routes high-value prospects to the correct sales teams without manual intervention.
+
+
+### **Problem**
+
+  * **Data Decay:** Incoming leads often had missing fields or null values, leading to "ghost" records in the CRM.
+  * **Duplicate Bloat:** Multiple submissions from the same user created redundant entries, skewing sales data.
+  * **Manual Routing Bottlenecks:** Leads were being manually sorted into "SMB" and "Enterprise" categories, causing delays in response time (Lead Response Time is critical for conversion).
+
+
+### **Solution**
+
+  * **Automated Sanitization:** Implemented a "Quality Gate" that intercepts leads with null data before they reach the database.
+  * **Logic-Based Deduplication:** Used sequential filtering to ensure only unique, high-quality data is processed.
+  * **Dynamic Routing Engine:** Developed a branched logic system using JavaScript and Switch nodes to instantly assign leads to the appropriate sales channel (SMB vs. Enterprise) and notify them via Slack.
+
+
+### **Workflow Overview**
+
+The workflow follows a linear-to-branched logic:
+
+1.  **Ingestion:** Receives data via **Webhooks** or **Lead Forms**.
+2.  **Normalization:** Splits items into a processable format.
+3.  **Validation (The "If" Gate):** \* **Failed Data:** Identified, flagged for missing fields via JS, and sent to a Slack "Fix-it" channel.
+      * **Passed Data:** Proceeded to deduplication.
+4.  **Sync:** Records are upserted (Create/Update) into the **CRM**.
+5.  **Intelligence Layer:** A **Switch Node** evaluates lead attributes to determine the "Responsible Team."
+6.  **Action:** Custom JS formats the Slack payload for specific team channels.
+
+
+### **Tech Stack**
+
+| Category | Tool | Purpose |
+| :--- | :--- | :--- |
+| **Orchestration** | n8n | Workflow automation and node management. |
+| **Languages** | JavaScript (Node.js) | Custom data transformation and field validation. |
+| **Communication** | Slack API | Real-time internal alerts and lead notifications. |
+| **Data Storage** | CRM (via API) | Centralized lead management and record keeping. |
+| **Triggers** | Webhooks / HTTP | Real-time data reception from external landing pages. |
+
+
+### **Results & Impact**
+
+  * **100% Data Cleanliness:** Null and incomplete leads are now caught before entering the CRM, saving hours of manual database cleaning.
+  * **Reduced Lead Latency:** Routing happens in `< 2 seconds`, allowing sales teams to reach out to prospects almost instantly.
+  * **Operational Transparency:** The automated Slack alerts ensure that the operations team is immediately aware of any submission errors or technical issues with the lead form.
+
+
+
+# Lead Management & Data Sanitization Workflow
+
+This **n8n** workflow automates the intake, deduplication, and routing of incoming leads from webhooks and lead forms. It ensures data integrity by filtering out null values and duplicates before syncing with a CRM and notifying the appropriate Slack channels.
+
+## 🚀 Overview
+
+The workflow processes incoming data through two primary triggers, sanitizes the payload, and branches based on data quality and lead type (SMB vs. Enterprise).
+
+
+
+---
+
+## 🛠 Workflow Logic
+
+### 1. Ingestion & Pre-processing
+* **Triggers:** Starts via a `Webhook` or a `Lead Form` request.
+* **Splitter:** Data is normalized and split into separate items for individual processing.
+* **Quality Gate:** An If-Node (`With null item/data?`) checks for incomplete submissions.
+
+### 2. Error Handling (True Branch)
+If the data is incomplete:
+* Duplicates are removed.
+* A JavaScript node identifies exactly which fields are missing.
+* A **Slack notification** is sent to the operations team to flag the bad data.
+
+### 3. Lead Processing (False Branch)
+If the data is valid:
+* **Deduplication:** A second pass ensures the data is unique.
+* **CRM Integration:** The workflow creates or updates a record in the CRM (e.g., Airtable, HubSpot, or Salesforce).
+* **Routing:** A Switch-Node (`Route to responsible team`) evaluates the lead type.
+* **Team Assignment:** * **SMB leads** are processed via JS and sent to the `#smb-leads` Slack channel.
+    * **Enterprise leads** are processed via JS and sent to the `#enterprise-leads` Slack channel.
+
+---
+
+## 📋 Prerequisites
+
+To use this workflow, you will need:
+* An **n8n** instance (self-hosted or cloud).
+* **Credentials** configured for:
+    * Your chosen CRM (Airtable/HubSpot/etc.).
+    * Slack (OAuth2 or Webhook).
+* **JSON Import:** The `.json` file provided in this repository.
+
+## ⚙️ Configuration
+
+1.  **Import:** Download the `workflow.json` and import it into your n8n canvas.
+2.  **Slack Nodes:** Update the Channel IDs in the "Send message to..." nodes.
+3.  **CRM Node:** Map your specific lead fields (Name, Email, Company) to your CRM schema in the "Create or update CRM" node.
+4.  **Routing Rules:** Adjust the "Route to responsible team" node logic to match your company's definition of SMB vs. Enterprise (e.g., company size or revenue).
+
+---
+
+## 📝 Nodes Used
+* **Webhook & Lead Form:** Entry points.
+* **Item Lists:** For splitting and deduplicating data.
+* **If / Switch Nodes:** For conditional logic.
+* **Code Node (JavaScript):** For custom data formatting and error identification.
+* **Slack:** For team communication.
+
+---
+*Generated for the Lead Ops Team.*
