@@ -1,0 +1,768 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "fieldToSplitOut": "body",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        80,
+        64
+      ],
+      "id": "772278be-b27f-439f-a957-00ec31953f40",
+      "name": "Split into separate item/data",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "formTitle": "New Leads",
+        "formDescription": "Thank you, we'll get back to you soon!",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Company Name"
+            },
+            {
+              "fieldLabel": "Email Address"
+            },
+            {
+              "fieldLabel": "Contact Number"
+            },
+            {
+              "fieldLabel": "Budget"
+            },
+            {
+              "fieldLabel": "Company Size"
+            },
+            {
+              "fieldLabel": "Country"
+            },
+            {
+              "fieldLabel": "Inquiry Message"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        -128,
+        256
+      ],
+      "id": "a7d97f49-6b81-437a-9a40-79bf1594c0fd",
+      "name": "Request from Lead Form",
+      "webhookId": "df293a4a-3b05-48e8-bc92-7aedd52867ab",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "1009f4b1-b96a-401f-8ecd-22c96db3054d",
+              "leftValue": "={{ $json.company_name }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "a6a07da4-f03b-44ce-8a0c-bf47d69503f5",
+              "leftValue": "={{ $json.email_address }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "8b521087-56b5-4c53-a9be-50dffce35a54",
+              "leftValue": "={{ $json.contact_number }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "a4cdf756-bc4c-4650-9dc3-5bd1c15a779f",
+              "leftValue": "={{ $json.budget }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "373b6ead-fece-4801-9bc6-5de39854c8c6",
+              "leftValue": "={{ $json.company_size }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "8b0965bd-7bb5-425a-995a-bb8028a7bcff",
+              "leftValue": "={{ $json.country }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "8f49d087-57a6-4163-b106-dedf5bb47efe",
+              "leftValue": "={{ $json.inquiry_message }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        304,
+        176
+      ],
+      "id": "afca07f4-8dee-4fc4-8398-9bc711bffdc0",
+      "name": "With null item/data?"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0AR1C4UB3P",
+          "mode": "list",
+          "cachedResultName": "lead-user-group"
+        },
+        "text": "=Hi {{ $json.company_name }},\n\nThank you for reaching out! We started setting up your lead profile, but we noticed a few specific details were missing to complete the process.\n\nInformation needed: {{ $json.missing_string }}\n\nCould you please reply to provide these detail/s this will help us get your request to the right team immediately.",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        1024,
+        -64
+      ],
+      "id": "32ea518b-26d3-41ff-a36f-d76258b56f94",
+      "name": "Send a message",
+      "webhookId": "42dfca39-8cae-42bf-8c78-ac517554bffb",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "ZdaoeZwgiyC43kYz",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1264,
+        -64
+      ],
+      "id": "e3361a5b-7013-4065-abef-a3c88ce4648e",
+      "name": "End of Process"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "/new-leads",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -128,
+        64
+      ],
+      "id": "2676da2d-2a53-45f8-a562-50787dd7f79f",
+      "name": "Webhook",
+      "webhookId": "d74fc11a-b79f-4c65-abb2-bca73b129777"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const input = $input.item.json;\n\n// Define your required fields and how you want them to appear in the message\nconst requiredFields = {\n  \"company_name\": \"Company Name\",\n  \"email_address\": \"Email Address\",\n  \"contact_number\": \"Contact Number\",\n  \"inquiry_message\": \"Inquiry Message\"\n};\n\nlet missingList = [];\n\n// Loop through and check for null or empty strings\nfor (const key in requiredFields) {\n  if (input[key] === null || input[key] === undefined || input[key].toString().trim() === \"\") {\n    missingList.push(requiredFields[key]);\n  }\n}\n\nreturn {\n  company_name: input.company_name || \"Valued Customer\",\n  missing_string: missingList.join(\", \"),\n  has_missing: missingList.length > 0\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        768,
+        -64
+      ],
+      "id": "0f213df9-aee6-4605-9d41-75806138eafd",
+      "name": "Identify item/data with missing fields"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        512,
+        -64
+      ],
+      "id": "9a075829-8d03-4c0d-bf92-df1bc97777f0",
+      "name": "Remove item/data with duplicates-01"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        512,
+        416
+      ],
+      "id": "9962492b-75a2-48fe-abcb-d39a93f57b8c",
+      "name": "Remove item/data with duplicates-02"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.fields[\"Company Size\"] }}",
+                    "rightValue": 20,
+                    "operator": {
+                      "type": "number",
+                      "operation": "lt"
+                    },
+                    "id": "4b1fb897-3ee6-4d4c-a289-8b4092b6f50c"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "lead-smb-group"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "898fbc46-a602-410c-826a-53ff0a5034e5",
+                    "leftValue": "={{ $json.fields[\"Company Size\"] }}",
+                    "rightValue": 20,
+                    "operator": {
+                      "type": "number",
+                      "operation": "gt"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "lead-enterprise-group"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        1024,
+        416
+      ],
+      "id": "3185eda8-f336-4e80-a840-f6db09a97752",
+      "name": "Route to responsible team"
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "base": {
+          "__rl": true,
+          "value": "appfv4FqyhMhKgroK",
+          "mode": "list",
+          "cachedResultName": "Lead Management",
+          "cachedResultUrl": "https://airtable.com/appfv4FqyhMhKgroK"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblCUfl4Awombxvjj",
+          "mode": "list",
+          "cachedResultName": "New Leads",
+          "cachedResultUrl": "https://airtable.com/appfv4FqyhMhKgroK/tblCUfl4Awombxvjj"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Inquiry Message": "={{ $json.inquiry_message }}",
+            "Country": "={{ $json.country }}",
+            "Company Size": "={{ $json.company_size }}",
+            "Budget": "={{ $json.budget }}",
+            "Contact Number": "={{ $json.contact_number }}",
+            "Email Address": "={{ $json.email_address }}",
+            "Company Name": "={{ $json.company_name }}"
+          },
+          "matchingColumns": [
+            "Email Address",
+            "Company Name",
+            "Contact Number"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Company Name",
+              "displayName": "Company Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email Address",
+              "displayName": "Email Address",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Contact Number",
+              "displayName": "Contact Number",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Budget",
+              "displayName": "Budget",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Company Size",
+              "displayName": "Company Size",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Country",
+              "displayName": "Country",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Inquiry Message",
+              "displayName": "Inquiry Message",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        768,
+        416
+      ],
+      "id": "df6ce9d2-4f82-462e-a16a-98b30f479258",
+      "name": "Create or update CRM",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "bHlW9soFLQuWxDMG",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nlet listText = \"🚀 *New Batch of Leads for Review*:\\n\\n\";\n\nitems.forEach((item, index) => {\n  // Access the 'fields' object where your Airtable/CRM data lives\n  const d = item.json.fields; \n  \n  if (d) {\n    // Note: Use the exact capitalization from your input (e.g., \"Company Name\")\n    const name = d[\"Company Name\"] || \"Unknown\";\n    const size = d[\"Company Size\"] || \"N/A\";\n    const country = d[\"Country\"] || \"N/A\";\n\n    listText += `${index + 1}. *${name}* - ${size} pax (${country})\\n`;\n  }\n});\n\nreturn {\n  summary: listText,\n  count: items.length\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1280,
+        288
+      ],
+      "id": "d540c52a-4292-480c-b50e-5c991149c95a",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0AR8BT9LMS",
+          "mode": "list",
+          "cachedResultName": "lead-smb-group"
+        },
+        "text": "=Hi Small-Medium Business Group, we have {{ $json.count }} new leads ready for processing.\n\nPlease review these in the Lead Management Sheet and update their status to \"Approved and Claim Lead\" once you've made contact. Otherwise update remark column to \"Disapprove Lead\".",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        1536,
+        288
+      ],
+      "id": "4b979e83-3b9c-4ced-92e7-16bc24fbfc4f",
+      "name": "Send message to SMB Group",
+      "webhookId": "526f3168-6206-4e54-bf6c-12fca7a8733f",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "ZdaoeZwgiyC43kYz",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0AQPAP625D",
+          "mode": "list",
+          "cachedResultName": "lead-enterprise-group"
+        },
+        "text": "=Hi Enterprise Business Group, we have {{ $node[\"Code in JavaScript1\"].json[\"count\"] }} new leads ready for processing.\n\nPlease review these in the Lead Management Sheet and update their status to \"Approved and Claim Lead\" once you've made contact. Otherwise update remark column to \"Disapprove Lead\".",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        1536,
+        528
+      ],
+      "id": "6dc45be5-38bd-4b30-9f25-369d51a434aa",
+      "name": "Send message to Enterprise Group",
+      "webhookId": "8f51369b-3efe-42e6-9531-79a55bcf8c04",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "ZdaoeZwgiyC43kYz",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nlet listText = \"🚀 *New Batch of Leads for Review*:\\n\\n\";\n\nitems.forEach((item, index) => {\n  // Access the 'fields' object where your Airtable/CRM data lives\n  const d = item.json.fields; \n  \n  if (d) {\n    // Note: Use the exact capitalization from your input (e.g., \"Company Name\")\n    const name = d[\"Company Name\"] || \"Unknown\";\n    const size = d[\"Company Size\"] || \"N/A\";\n    const country = d[\"Country\"] || \"N/A\";\n\n    listText += `${index + 1}. *${name}* - ${size} pax (${country})\\n`;\n  }\n});\n\nreturn {\n  summary: listText,\n  count: items.length\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1280,
+        528
+      ],
+      "id": "c8145e37-cb15-412e-aac5-03bd3cfa5d0c",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1744,
+        416
+      ],
+      "id": "821fab48-0925-4b02-a5eb-cc126b9b9918",
+      "name": "No Operation, do nothing"
+    }
+  ],
+  "pinData": {
+    "Request from Lead Form": [
+      {
+        "json": {
+          "company_name": "Zoro  Company",
+          "email_address": "onepiecezoro.com",
+          "contact_number": "123456789",
+          "budget": "$20",
+          "company_size": null,
+          "country": "Japan",
+          "inquiry_message": "ni hao ma"
+        }
+      },
+      {
+        "json": {
+          "company_name": "Luffy  Company",
+          "email_address": "monkeydluffy.com",
+          "contact_number": "0987654321",
+          "budget": "$50",
+          "company_size": 340,
+          "country": "Japan",
+          "inquiry_message": "anneyeong hasseyo"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Split into separate item/data": {
+      "main": [
+        [
+          {
+            "node": "With null item/data?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Request from Lead Form": {
+      "main": [
+        [
+          {
+            "node": "With null item/data?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "With null item/data?": {
+      "main": [
+        [
+          {
+            "node": "Remove item/data with duplicates-01",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Remove item/data with duplicates-02",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "End of Process",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Split into separate item/data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "End of Process": {
+      "main": [
+        []
+      ]
+    },
+    "Identify item/data with missing fields": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove item/data with duplicates-01": {
+      "main": [
+        [
+          {
+            "node": "Identify item/data with missing fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove item/data with duplicates-02": {
+      "main": [
+        [
+          {
+            "node": "Create or update CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route to responsible team": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create or update CRM": {
+      "main": [
+        [
+          {
+            "node": "Route to responsible team",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Send message to SMB Group",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message to SMB Group": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message to Enterprise Group": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Send message to Enterprise Group",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "3ed19fa8-f18e-43c9-8d97-79281a0aedd2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "75604ab00dbd94bc204e841f8f0f2657e718eac942ea5b1c2d74957ea65a9e8c"
+  },
+  "id": "UOHfFj3IpA5ye8xY",
+  "tags": []
+}
